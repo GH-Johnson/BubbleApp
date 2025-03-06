@@ -25,12 +25,14 @@ jobs:
         pip install -r requirements.txt
         
     - name: Verify resources
+      shell: bash  # 关键！强制使用Bash解释器
       run: |
-        if not exist "resources" mkdir resources
-        if not exist "resources/pop.wav" (
-          echo pop.wav >> resources/pop.wav
+        mkdir -p resources
+        # 检查音效文件存在性
+        if [ ! -f resources/pop.wav ]; then
+          echo "错误：缺少音效文件 resources/pop.wav"
           exit 1
-        )
+        fi
         
     - name: Build executable
       run: |
