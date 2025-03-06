@@ -1,45 +1,42 @@
-name: Build Windows 32bit Executable
+name: Build Windows Executable
 
-on:
-  push:
-    tags:
-      - 'v*'
+on: [push]
 
 jobs:
   build:
-    name: Build
-    runs-on: windows-2019  # 使用Windows Server 2019环境
-    strategy:
-      matrix:
-        python-version: ["3.8.10"]  # 使用Python 3.8的32位版本
-
+    runs-on: windows-latest
+    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Setup Python 32bit
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # 确保检出所有文件
+        
+    - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
-        python-version: ${{ matrix.python-version }}
-        architecture: 'x86'  # 关键：强制使用32位Python
-
-    - name: Install system dependencies
-      run: |
-        # 安装VC++运行库（可能需要）
-        choco install vcredist2010 -y
-
-    - name: Install Python dependencies
+        python-version: "3.10"
+        architecture: "x86"  # 强制32位
+        
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pyinstaller==5.13.2
-
-    - name: Build with PyInstaller
+        
+    - name: Verify resources
       run: |
-        pyinstaller build.spec --onefile --noconsole --runtime-tmpdir . --workpath build --distpath dist
-
+        if not test -f pop.wav; then
+          echo "错误：缺少pop.wav文件"
+          exit 1
+        fi
+        
+    - name: Build exe
+      run: |
+        mkdir resources
+        copy pop.wav resources
+        pyinstaller --onefile --noconsole --add-data "resources/pop.wav;resources/" bubble_app.py
+        
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
-        name: BubbleApp-Win32
-        path: dist/
+        name: BubbleApp
+        path: dist/bubble_app.exe
