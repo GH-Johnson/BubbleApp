@@ -202,24 +202,40 @@ def main():
     # 主循环
     running = True
     while running:
-        current_width, current_height = screen.get_size()
-        screen.fill(pygame.Color("lightblue"))
-        
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.VIDEORESIZE:
-                screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                mouse_pos = pygame.mouse.get_pos()
-                for bubble in bubbles:
-                    if not bubble.bursting and bubble.collide_point(mouse_pos):
-                        bubble.bursting = True
-                        if pop_sound:
-                            try:
-                                pop_sound.play()
-                            except pygame.error:
-                                pass
+    current_width, current_height = screen.get_size()
+    screen.fill(pygame.Color("lightblue"))
+    
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.VIDEORESIZE:
+            screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            # 逆序遍历检测碰撞（从最上层开始）
+            for bubble in reversed(bubbles):
+                if not bubble.bursting and bubble.collide_point(mouse_pos):
+                    bubble.bursting = True
+                    if pop_sound:
+                        try:
+                            pop_sound.play()
+                        except pygame.error:
+                            pass
+                    break  # 只触发最上层泡泡
+
+    # 更新所有泡泡状态
+    for bubble in bubbles:
+        bubble.update(*screen.get_size())
+    
+    # 移除已完成动画的泡泡
+    bubbles = [b for b in bubbles if not b.should_remove()]
+    
+    # 绘制所有泡泡
+    for bubble in bubbles:
+        bubble.draw(screen)
+
+    pygame.display.flip()
+    clock.tick(FPS)
 
         # 更新所有泡泡状态
         for bubble in bubbles:
