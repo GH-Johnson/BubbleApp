@@ -80,7 +80,7 @@ def create_burst_frame(radius, progress):
 
 class Bubble:
     def __init__(self, text, screen_width, screen_height):
-        self.text = str(text)[:MAX_BUBBLE_TEXT_LENGTH]
+        self.text = str(text)
         self.color = (
             random.randint(100, 255),
             random.randint(100, 255),
@@ -137,6 +137,47 @@ class Bubble:
                       int(self.y - self.base_radius))
                 surface.blit(self.normal_surface, pos)
                 
+                # 动态字体大小调整
+                target_font_size = max(16, self.base_radius//2)  # 增大基础字号
+                font = None
+                for fs in range(target_font_size, 11, -1):  # 向下寻找合适字号
+                    try:
+                        font = pygame.font.Font(None, fs)
+                        text_width = font.size(self.text)[0]
+                        if text_width <= 2.5 * self.base_radius:
+                            break
+                    except:
+                        pass
+                
+                if not font:
+                    font = pygame.font.Font(None, 12)
+
+                # 自动换行处理
+                words = self.text.split(' ')
+                lines = []
+                while len(words) > 0:
+                    line = ''
+                    while len(words) > 0:
+                        test_line = line + (' ' if line else '') + words[0]
+                        if font.size(test_line)[0] <= 2.5 * self.base_radius:
+                            line = test_line
+                            words.pop(0)
+                        else:
+                            break
+                    lines.append(line)
+
+                # 计算总高度
+                line_height = font.get_linesize()
+                total_height = len(lines) * line_height
+
+                # 绘制多行文本
+                y_offset = self.y - total_height // 2
+                for line in lines:
+                    text = font.render(line, True, (30, 30, 30))
+                    text_rect = text.get_rect(center=(self.x, y_offset))
+                    surface.blit(text, text_rect)
+                    y_offset += line_height
+
                 # 文字渲染优化
                 font_size = max(12, self.base_radius//3)
                 try:
