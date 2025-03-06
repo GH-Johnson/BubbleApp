@@ -9,13 +9,13 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # 确保检出所有文件
+        fetch-depth: 0
         
     - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
         python-version: "3.10"
-        architecture: "x86"  # 强制32位
+        architecture: "x86"
         
     - name: Install dependencies
       run: |
@@ -23,8 +23,9 @@ jobs:
         pip install -r requirements.txt
         
     - name: Verify resources
+      shell: bash  # 指定使用Bash
       run: |
-        if not test -f pop.wav; then
+        if [ ! -f pop.wav ]; then
           echo "错误：缺少pop.wav文件"
           exit 1
         fi
@@ -36,7 +37,7 @@ jobs:
         pyinstaller --onefile --noconsole --add-data "resources/pop.wav;resources/" bubble_app.py
         
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: BubbleApp
         path: dist/bubble_app.exe
