@@ -26,7 +26,7 @@ BUBBLE_MAX_RADIUS = 80
 FPS = 60
 COLORS = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEEAD"]  # 预定义颜色方案
 
-# 增强型资源路径处理
+# 增强型资源路径处理（仅保留音效资源处理）
 def resource_path(relative_path):
     """处理打包后的资源路径问题，支持嵌套目录"""
     try:
@@ -41,7 +41,7 @@ def resource_path(relative_path):
     
     return path
 
-# 高级泡泡生成器
+# 高级泡泡生成器（保持不变）
 class BubbleFactory:
     @staticmethod
     def create_bubble_surface(radius, color):
@@ -158,9 +158,9 @@ class Bubble:
         if self.state == "normal":
             surface.blit(self.surface_cache, self.rect.topleft)
             
-            # 高质量文字渲染
+            # 修改字体加载方式：使用系统默认字体
             font_size = max(16, self.base_radius//2)
-            font = pygame.font.Font(resource_path("assets/font.ttf"), font_size)
+            font = pygame.font.SysFont("sans-serif", font_size)  # 使用系统无衬线字体
             
             text = font.render(self.text, True, (30, 30, 30))
             text_rect = text.get_rect(center=self.rect.center)
