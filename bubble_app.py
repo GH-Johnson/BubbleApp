@@ -202,7 +202,7 @@ def main():
     # 主循环
     running = True
     while running:
-    current_width, current_height = screen.get_size()
+     current_width, current_height = screen.get_size()
     screen.fill(pygame.Color("lightblue"))
     
     for event in pygame.event.get():
