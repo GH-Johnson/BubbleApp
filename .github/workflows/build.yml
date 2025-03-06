@@ -25,7 +25,7 @@ jobs:
         pyinstaller --onefile --noconsole --add-data "pop.wav;." bubble_app.py
         
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: BubbleApp
-        path: dist/
+        path: dist/*.exe  # 精确指定exe文件路径
