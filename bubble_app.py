@@ -17,7 +17,7 @@ def resource_path(relative_path):
 def create_bubble_surface(radius, color):
     # ...保持原有实现不变...
 
-def create_burst_frame(radius, progress):
+ def create_burst_frame(radius, progress):
     progress = max(0.0, min(1.0, progress))  # 参数校验
     # ...保持原有实现不变...
 
