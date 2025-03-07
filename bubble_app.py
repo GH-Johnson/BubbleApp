@@ -24,6 +24,7 @@ MAX_BUBBLE_TEXT_LENGTH = 20
 BUBBLE_MIN_RADIUS = 40
 BUBBLE_MAX_RADIUS = 80
 FPS = 60
+BASE_SPEED = 0.4  # 新增基础速度常量
 COLORS = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEEAD"]  # 预定义颜色方案
 
 # 增强型资源路径处理（仅保留音效资源处理）
@@ -119,8 +120,8 @@ class Bubble:
             self.base_radius*2, self.base_radius*2
         )
         self.velocity = [
-            random.uniform(-2, 2),
-            random.uniform(-2, 2)
+            random.uniform(-BASE_SPEED, BASE_SPEED),
+            random.uniform(-BASE_SPEED, BASE_SPEED)
         ]
         self.state = "normal"  # normal/bursting/popped
         self.animation_progress = 0.0
@@ -130,15 +131,15 @@ class Bubble:
         """物理更新与状态管理"""
         if self.state == "normal":
             # 运动计算
-            self.rect.x += self.velocity[0] * dt
-            self.rect.y += self.velocity[1] * dt
+            self.rect.x += self.velocity[0] * dt * 0.8
+            self.rect.y += self.velocity[1] * dt * 0.8
             
             # 边界反弹
             if not screen_rect.contains(self.rect):
                 if self.rect.left < screen_rect.left or self.rect.right > screen_rect.right:
-                    self.velocity[0] *= -1
+                    self.velocity[0] *= -0.9
                 if self.rect.top < screen_rect.top or self.rect.bottom > screen_rect.bottom:
-                    self.velocity[1] *= -1
+                    self.velocity[1] *= -0.9
                 self.rect.clamp_ip(screen_rect)
                 
         elif self.state == "bursting":
