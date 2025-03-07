@@ -161,7 +161,14 @@ class Bubble:
             
             # 修改字体加载方式：使用系统默认字体
             font_size = max(16, self.base_radius//2)
-            font = pygame.font.SysFont("sans-serif", font_size)  # 使用系统无衬线字体
+            try:
+                # 中文字体优先级列表（小写无空格）
+                font = pygame.font.SysFont(
+                    ['microsoftyahei', 'simhei', 'simsun', 'stheititts', 'wqy-microhei'], 
+                    font_size
+                )
+            except Exception:
+                font = pygame.font.SysFont(None, font_size)  # 最后尝试默认字体
             
             text = font.render(self.text, True, (30, 30, 30))
             text_rect = text.get_rect(center=self.rect.center)
