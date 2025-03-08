@@ -53,6 +53,9 @@ jobs:
         if ($env:PATH -notmatch [regex]::Escape($scriptsDir)) {
             $env:PATH = "$scriptsDir;$env:PATH"
         }
+
+        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+        chcp 65001
         
         # 执行构建（禁用续行符）
         pyinstaller --onefile --noconsole --add-data "resources/pop.wav;resources" `
