@@ -28,12 +28,23 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install wheel
-        pip install -r requirements.txt --no-binary :all:  # 强制源码编译32位版本
-        pip list
+        pip install pyinstaller==5.13.2  # 显式安装指定版本
+        pip install -r requirements.txt
+        pip list | findstr pyinstaller  # 确认安装成功
+
 
     - name: 构建可执行文件
       shell: powershell
       run: |
+        # 添加Python Scripts目录到PATH
+        $pythonPath = (Get-Command python).Path
+        $scriptsDir = Join-Path (Split-Path $pythonPath -Parent) "Scripts"
+        $env:PATH += ";$scriptsDir"
+
+        # 验证PyInstaller路径
+        Write-Output "PyInstaller路径: $(Get-Command pyinstaller)"
+
+        # 执行构建命令
         pyinstaller --onefile --noconsole `
           --add-data "resources/pop.wav;resources" `
           --hidden-import pandas._libs.tslibs.np_datetime `
