@@ -36,17 +36,26 @@ jobs:
     - name: 构建可执行文件
       shell: powershell
       run: |
-        # 添加Python Scripts目录到PATH
-        $pythonPath = (Get-Command python).Path.Trim()
-        $pythonDir = Split-Path $pythonPath -Parent
-        $scriptsDir = Join-Path -Path $pythonDir -ChildPath "Scripts"
-
-        # 验证PyInstaller路径
-        Write-Output "PyInstaller路径: $(Get-Command pyinstaller)"
-
-        # 执行构建命令
-        pyinstaller --onefile --noconsole `
-          --add-data "resources/pop.wav;resources" `
+        # 清理环境变量
+        $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "Machine")
+        
+        # 安全获取Python路径
+        $pythonExe = (Get-Command python).Source
+        $pythonDir = [System.IO.Path]::GetDirectoryName($pythonExe)
+        $scriptsDir = Join-Path $pythonDir "Scripts"
+        
+        # 调试输出
+        Write-Host "验证路径结构:"
+        Write-Host "Python目录 -> $pythonDir"
+        Write-Host "Scripts目录 -> $scriptsDir"
+        
+        # 添加PATH（兼容旧版PowerShell）
+        if ($env:PATH -notmatch [regex]::Escape($scriptsDir)) {
+            $env:PATH = "$scriptsDir;$env:PATH"
+        }
+        
+        # 执行构建（禁用续行符）
+        pyinstaller --onefile --noconsole --add-data "resources/pop.wav;resources" `
           --hidden-import pandas._libs.tslibs.np_datetime `
           --hidden-import pandas._libs.tslibs.nattype `
           --hidden-import pygame._sdl2 `
