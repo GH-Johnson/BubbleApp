@@ -1,6 +1,7 @@
 pyinstaller==5.13.2
-pygame==2.5.2
-pandas==1.5.3    # 降级以支持32位系统
+pygame==2.0.3
+pandas==1.2.5    # 降级以支持32位系统
 openpyxl==3.0.10  # 兼容pandas 1.5.3的版本
 numpy==1.24.3     # 兼容32位系统的版本
 pywin32==306
+python-dateutil==2.8.2
