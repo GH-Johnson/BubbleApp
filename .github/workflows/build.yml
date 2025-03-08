@@ -1,46 +1,56 @@
-name: Build Windows Executable
+name: Build Windows 7 32-bit Executable
 
 on: [push]
 
 jobs:
   build:
-    runs-on: windows-latest
-    
+    runs-on: windows-2019  # 兼容性更好的旧版环境
+    env:
+      PYTHON_ARCH: "x86"   # 强制32位架构
+
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        
-    - name: Set up Python 3.10
+
+    - name: 安装VC++ 2015运行库
+      shell: powershell
+      run: |
+        Invoke-WebRequest -Uri "https://aka.ms/vs/16/release/vc_redist.x86.exe" -OutFile vc_redist.x86.exe
+        Start-Process vc_redist.x86.exe -ArgumentList '/install', '/quiet', '/norestart' -Wait
+
+    - name: 配置Python 3.8 32位
       uses: actions/setup-python@v4
       with:
-        python-version: "3.10"
-        
-    - name: Install dependencies
+        python-version: "3.8.10"
+        architecture: x86  # 关键：必须指定32位
+
+    - name: 安装依赖
       shell: powershell
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        
-    - name: Verify resources
-      shell: powershell
-      run: |
-        if (-not (Test-Path "resources/pop.wav")) {
-          Write-Error "Missing pop.wav in resources/"
-          Exit 1
-        }
-        
-    - name: Build executable
+        pip install wheel
+        pip install -r requirements.txt --no-binary :all:  # 强制源码编译32位版本
+        pip list
+
+    - name: 构建可执行文件
       shell: powershell
       run: |
         pyinstaller --onefile --noconsole `
           --add-data "resources/pop.wav;resources" `
+          --hidden-import pandas._libs.tslibs.np_datetime `
+          --hidden-import pandas._libs.tslibs.nattype `
+          --hidden-import pygame._sdl2 `
           --workpath build `
           --distpath dist `
           bubble_app.py
-        
-    - name: Upload artifact
+
+    - name: 验证构建结果
+      shell: powershell
+      run: |
+        Get-ChildItem -Path dist -Recurse
+        Test-Path "dist/bubble_app.exe"
+
+    - name: 上传制品
       uses: actions/upload-artifact@v4
       with:
-        name: BubbleApp
+        name: BubbleApp-Win7-32bit
         path: dist/bubble_app.exe
