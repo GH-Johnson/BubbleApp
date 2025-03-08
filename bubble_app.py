@@ -9,10 +9,17 @@ import os
 import numpy as np
 from importlib.metadata import version
 
+if sys.platform == "win32":
+    # 禁用高DPI缩放
+    if hasattr(sys, "getwindowsversion"):
+        if sys.getwindowsversion().major < 8:
+            os.environ["PYSDL2_DLL_PATH"] = os.path.dirname(__file__)
+            os.environ["SDL_VIDEO_WINDOW_POS"] = "0,0"
+
 # 版本检查
 try:
-    assert version('pygame') >= '2.5.2'
-    assert version('pandas') >= '1.5.3'
+    assert version('pygame') >= '2.0.3'
+    assert version('pandas') >= '1.2.5'
     assert version('numpy') >= '1.24.3'
 except (ImportError, AssertionError) as e:
     print(f"依赖版本不满足: {e}")
