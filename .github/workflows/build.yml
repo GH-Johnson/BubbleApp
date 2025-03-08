@@ -37,9 +37,9 @@ jobs:
       shell: powershell
       run: |
         # 添加Python Scripts目录到PATH
-        $pythonPath = (Get-Command python).Path
-        $scriptsDir = Join-Path (Split-Path $pythonPath -Parent) "Scripts"
-        $env:PATH += ";$scriptsDir"
+        $pythonPath = (Get-Command python).Path.Trim()
+        $pythonDir = Split-Path $pythonPath -Parent
+        $scriptsDir = Join-Path -Path $pythonDir -ChildPath "Scripts"
 
         # 验证PyInstaller路径
         Write-Output "PyInstaller路径: $(Get-Command pyinstaller)"
