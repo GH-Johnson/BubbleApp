@@ -36,36 +36,28 @@ jobs:
     - name: 构建可执行文件
       shell: powershell
       run: |
-        # 清理环境变量
-        $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "Machine")
+            # 清理环境变量（必须用英文符号）
+            $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "Machine")
+            [System.Console]::OutputEncoding = [System.Text.Encoding]::ASCII
+            # 安全获取Python路径
+            $pythonPath = (Get-Command python).Path
+            $scriptsDir = Join-Path -Path (Split-Path $pythonPath -Parent) -ChildPath "Scripts"
+            
+            # 添加PATH（使用英文分号）
+            if (-not $env:PATH.Contains($scriptsDir)) {
+                $env:PATH = "$scriptsDir;$env:PATH"
+            }
         
-        # 安全获取Python路径
-        $pythonExe = (Get-Command python).Source
-        $pythonDir = [System.IO.Path]::GetDirectoryName($pythonExe)
-        $scriptsDir = Join-Path $pythonDir "Scripts"
-        
-        # 调试输出
-        Write-Host "验证路径结构:"
-        Write-Host "Python目录 -> $pythonDir"
-        Write-Host "Scripts目录 -> $scriptsDir"
-        
-        # 添加PATH（兼容旧版PowerShell）
-        if ($env:PATH -notmatch [regex]::Escape($scriptsDir)) {
-            $env:PATH = "$scriptsDir;$env:PATH"
-        }
-
-        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-        chcp 65001
-        
-        # 执行构建（禁用续行符）
-        pyinstaller --onefile --noconsole --add-data "resources/pop.wav;resources" `
-          --hidden-import pandas._libs.tslibs.np_datetime `
-          --hidden-import pandas._libs.tslibs.nattype `
-          --hidden-import pygame._sdl2 `
-          --workpath build `
-          --distpath dist `
-          bubble_app.py
-
+            # 执行构建（检查所有符号为英文）
+            pyinstaller --onefile --noconsole `
+              --add-data "resources/pop.wav;resources" `
+              --hidden-import pandas._libs.tslibs.np_datetime `
+              --hidden-import pandas._libs.tslibs.nattype `
+              --hidden-import pygame._sdl2 `
+              --workpath build `
+              --distpath dist `
+              bubble_app.py
+      
     - name: 验证构建结果
       shell: powershell
       run: |
