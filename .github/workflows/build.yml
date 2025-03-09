@@ -28,7 +28,9 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install wheel
-        pip install pyinstaller==5.13.2  # 显式安装指定版本
+        pip -m install pyinstaller==5.13.2  # 显式安装指定版本
+        # 验证安装路径
+        Get-ChildItem "$env:USERPROFILE\AppData\Local\Programs\Python\Python38-32\Scripts\pyinstaller.exe"
         pip install -r requirements.txt
         pip list | findstr pyinstaller  # 确认安装成功
 
@@ -36,16 +38,17 @@ jobs:
     - name: 构建可执行文件
       shell: powershell
       run: |
-            # 清理环境变量（必须用英文符号）
-            $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "Machine")
-            [System.Console]::OutputEncoding = [System.Text.Encoding]::ASCII
-            # 安全获取Python路径
+            # 获取Python安装路径
             $pythonPath = (Get-Command python).Path
-            $scriptsDir = Join-Path -Path (Split-Path $pythonPath -Parent) -ChildPath "Scripts"
+            $scriptsDir = Join-Path (Split-Path $pythonPath -Parent) "Scripts"
             
-            # 添加PATH（使用英文分号）
-            if (-not $env:PATH.Contains($scriptsDir)) {
-                $env:PATH = "$scriptsDir;$env:PATH"
+            # 添加路径到环境变量
+            $env:PATH = "$scriptsDir;$env:PATH"
+            
+            # 验证PyInstaller可执行性
+            if (-not (Test-Path "$scriptsDir\pyinstaller.exe")) {
+                Write-Error "PyInstaller未正确安装!"
+                Exit 1
             }
         
             # 执行构建（检查所有符号为英文）
