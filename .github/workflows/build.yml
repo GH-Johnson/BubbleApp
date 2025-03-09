@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest  # GitHub Actions 仅支持 Windows 最新版，但可运行 32位 Python
+    runs-on: windows-latest
 
     steps:
     - name: 检出代码
@@ -15,44 +15,47 @@ jobs:
     - name: 安装 Python 3.7.9 (32位)
       uses: actions/setup-python@v4
       with:
-        python-version: '3.7.9'  # 官方最后支持 Win7 的 32位版本
-        architecture: 'x86'     # 强制使用 32位解释器
+        python-version: '3.7.9'
+        architecture: 'x86'  # 强制32位解释器
 
     - name: 配置环境变量
       shell: powershell
       run: |
-        # 获取 32位 Python 路径
+        # 获取Python路径（全英文路径）
         $pythonPath = (Get-Command python).Path
-        Write-Host "Python 32位路径: $pythonPath"
-        
-        # 计算 Scripts 目录并加入 PATH
-        $scriptsDir = Join-Path (Split-Path $pythonPath -Parent) "Scripts"
-        $env:PATH = "$scriptsDir;$env:PATH"
-        Write-Host "更新后的 PATH: $env:PATH"
+        Write-Host "Python路径: $pythonPath"
 
-    - name: 安装依赖 (Win7兼容版本)
+        # 计算Scripts目录（避免空格）
+        $scriptsDir = Join-Path (Split-Path $pythonPath -Parent) "Scripts"
+        Write-Host "Scripts目录: $scriptsDir"
+
+        # 设置环境变量（英文符号）
+        $env:PATH = "$scriptsDir;$env:PATH"
+        Write-Host "更新后的PATH: $env:PATH"
+
+    - name: 安装依赖
       shell: powershell
       run: |
-        # 升级 pip (使用旧版语法)
+        # 降级pip版本（适配Python 3.7）
         python -m pip install --upgrade "pip<21.0"
-        
-        # 安装特定版本依赖库（确保兼容 Win7 32位）
+
+        # 安装兼容Win7的库版本
         pip install pyinstaller==4.10 pywin32==227 pandas==1.1.5 pygame==2.0.3
 
-    - name: 构建 32位可执行文件
+    - name: 构建可执行文件
       shell: powershell
       run: |
-        # 使用绝对路径调用 PyInstaller
+        # 动态获取Scripts路径
         $pythonPath = (Get-Command python).Path
         $scriptsDir = Join-Path (Split-Path $pythonPath -Parent) "Scripts"
-        
-        # 添加 --target-arch 32位 参数
+
+        # 使用绝对路径调用PyInstaller
         & "$scriptsDir\pyinstaller.exe" --onefile --noconsole `
           --add-data "resources/pop.wav;resources" `
           --hidden-import pandas._libs.tslibs.np_datetime `
           --hidden-import pandas._libs.tslibs.nattype `
           --hidden-import pygame._sdl2 `
-          --target-arch 32bit `  # 明确指定 32位架构
+          --target-arch 32bit `  # 明确指定32位架构
           bubble_app.py
 
     - name: 上传产物
