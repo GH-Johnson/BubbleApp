@@ -83,7 +83,6 @@ jobs:
           --hidden-import pygame._sdl2 ^
           --hidden-import importlib_metadata ^
           --runtime-tmpdir . ^
-          --arch x86 ^
           bubble_app.py
 
     - name: Upload Artifact
