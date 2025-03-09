@@ -73,17 +73,17 @@ jobs:
         }
     
     - name: Build Executable
-      shell: powershell
+      shell: cmd
       run: |
-        pyinstaller --onefile --noconsole `
-          --add-data "resources/pop.wav;resources" `
-          --add-data "vc_redist.x86.exe;." `  # 添加VC++安装程序
-          --hidden-import pandas._libs.tslibs.np_datetime `
-          --hidden-import pandas._libs.tslibs.nattype `
-          --hidden-import pygame._sdl2 `
-          --hidden-import importlib_metadata `
-          --runtime-tmpdir . `
-          --arch x86 ` # 明确指定32位架构
+        pyinstaller --onefile --noconsole ^
+          --add-data "resources/pop.wav;resources" ^
+          --add-data "vc_redist.x86.exe;." ^  # 添加VC++安装程序
+          --hidden-import pandas._libs.tslibs.np_datetime ^
+          --hidden-import pandas._libs.tslibs.nattype ^
+          --hidden-import pygame._sdl2 ^
+          --hidden-import importlib_metadata ^
+          --runtime-tmpdir . ^
+          --arch x86 ^ # 明确指定32位架构
           bubble_app.py
 
     - name: Upload Artifact
