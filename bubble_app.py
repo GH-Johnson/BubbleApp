@@ -281,7 +281,8 @@ def main():
                 if event.button == 1:
                     manager.handle_click(event.pos)
                 elif event.button == 3:  # 右键重新加载数据
-                    if dataset := load_dataset():
+                    dataset = load_dataset()
+                    if dataset:
                         manager.bubbles.clear()
                         for text in dataset:
                             manager.add_bubble(text)
