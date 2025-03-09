@@ -16,16 +16,16 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: '3.7.9'
-        architecture: 'x86'  # 强制32位解释器
+        architecture: 'x86'  # 强制32位
 
     - name: 配置环境变量
       shell: powershell
       run: |
-        # 获取Python路径（全英文路径）
+        # 获取Python路径（严格英文符号）
         $pythonPath = (Get-Command python).Path
         Write-Host "Python路径: $pythonPath"
 
-        # 计算Scripts目录（避免空格）
+        # 计算Scripts目录
         $scriptsDir = Join-Path (Split-Path $pythonPath -Parent) "Scripts"
         Write-Host "Scripts目录: $scriptsDir"
 
@@ -36,26 +36,25 @@ jobs:
     - name: 安装依赖
       shell: powershell
       run: |
-        # 降级pip版本（适配Python 3.7）
+        # 降级pip（适配Python 3.7）
         python -m pip install --upgrade "pip<21.0"
 
-        # 安装兼容Win7的库版本
+        # 安装兼容库
         pip install pyinstaller==4.10 pywin32==227 pandas==1.1.5 pygame==2.0.3
 
     - name: 构建可执行文件
       shell: powershell
       run: |
-        # 动态获取Scripts路径
+        # 使用绝对路径调用PyInstaller
         $pythonPath = (Get-Command python).Path
         $scriptsDir = Join-Path (Split-Path $pythonPath -Parent) "Scripts"
-
-        # 使用绝对路径调用PyInstaller
+        
         & "$scriptsDir\pyinstaller.exe" --onefile --noconsole `
           --add-data "resources/pop.wav;resources" `
           --hidden-import pandas._libs.tslibs.np_datetime `
           --hidden-import pandas._libs.tslibs.nattype `
           --hidden-import pygame._sdl2 `
-          --target-arch 32bit `  # 明确指定32位架构
+          --target-arch 32bit `  # 强制32位
           bubble_app.py
 
     - name: 上传产物
