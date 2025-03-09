@@ -248,6 +248,12 @@ def load_dataset():
         return []
 
 def main():
+    # 测试代码开始
+    test_window = tk.Tk()
+    test_window.withdraw()
+    messagebox.showinfo("启动检测", "程序已启动到此处")
+    # 测试代码结束
+    
     pygame.init()
     screen = pygame.display.set_mode(DEFAULT_SCREEN_SIZE, pygame.RESIZABLE)
     pygame.display.set_caption("泡泡乐园 v2.0")
