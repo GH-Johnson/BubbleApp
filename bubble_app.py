@@ -18,9 +18,9 @@ if sys.platform == "win32":
 
 # 版本检查
 try:
-    assert version('pygame') >= '2.0.3'
-    assert version('pandas') >= '1.2.5'
-    assert version('numpy') >= '1.24.3'
+    assert importlib.metadata.version('pygame') >= '2.0.3'
+    assert importlib.metadata.version('pandas') >= '1.2.5'
+    assert importlib.metadata.version('numpy') >= '1.24.3'
 except (ImportError, AssertionError) as e:
     print(f"依赖版本不满足: {e}")
     sys.exit(1)
