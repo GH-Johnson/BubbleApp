@@ -30,7 +30,7 @@ jobs:
         pip install wheel
         pip install pyinstaller==5.13.2  # 显式安装指定版本
         # 验证安装路径
-        Get-ChildItem "$env:USERPROFILE\AppData\Local\Programs\Python\Python38-32\Scripts\pyinstaller.exe"
+        Get-ChildItem "$env:USERPROFILE\AppData\Local\Programs\Python\3.8.10\Scripts\pyinstaller.exe"
         pip install -r requirements.txt
         pip list | findstr pyinstaller  # 确认安装成功
 
@@ -39,7 +39,7 @@ jobs:
       run: |
         python -m pip install pyinstaller==5.13.2
         # 验证安装路径
-        Get-ChildItem "$env:USERPROFILE\AppData\Local\Programs\Python\Python38-32\Scripts\pyinstaller.exe"
+        Get-ChildItem "$env:USERPROFILE\AppData\Local\Programs\Python\3.8.10\Scripts\pyinstaller.exe"
     
     - name: 构建可执行文件
       shell: powershell
