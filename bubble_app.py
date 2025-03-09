@@ -256,7 +256,8 @@ def main():
     manager = BubbleManager(screen.get_rect())
     
     # 加载初始数据
-    if dataset := load_dataset():
+    dataset = load_dataset()
+    if dataset:
         for text in dataset:
             manager.add_bubble(text)
     else:
