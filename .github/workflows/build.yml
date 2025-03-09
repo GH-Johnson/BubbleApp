@@ -82,6 +82,8 @@ jobs:
           --hidden-import pandas._libs.tslibs.nattype ^
           --hidden-import pygame._sdl2 ^
           --hidden-import importlib_metadata ^
+          --hidden-import tkinter ^
+          --hidden-import tkinter.filedialog ^
           --runtime-tmpdir . ^
           bubble_app.py
 
