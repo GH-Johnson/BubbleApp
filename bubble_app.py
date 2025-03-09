@@ -7,7 +7,7 @@ import random
 import sys
 import os
 import numpy as np
-from importlib.metadata import version
+import importlib_metadata as metadata
 
 if sys.platform == "win32":
     # 禁用高DPI缩放
