@@ -48,9 +48,26 @@ jobs:
     - name: Copy VC++ Redist
       shell: bash
       run: |
-        cp ./deps/vc_redist.x86.exe ${{ github.workspace }}\vc_redist.x86.exe
-        # 验证文件哈希（必须添加）
-        echo "b84d8443f15c5eae8cd66d383cb6a28c6b1d7316db494ceea4792a42b83d0e0c  vc_redist.x86.exe" | sha256sum -c
+        # 创建目标目录（重要！）
+        New-Item -ItemType Directory -Path "${{ github.workspace }}" -Force
+    
+        # 使用标准Windows路径格式
+        $source = "./deps/vc_redist.x86.exe"
+        $dest = "${{ github.workspace }}\vc_redist.x86.exe"
+    
+        # 验证路径存在性
+        if (-not (Test-Path $source)) {
+            Write-Error "源文件不存在: $source"
+            exit 1
+        }
+    
+        Copy-Item -Path $source -Destination $dest -Force
+    
+        # 二次验证
+        if (-not (Test-Path $dest)) {
+            Write-Error "复制失败: $dest"
+            exit 1
+        }
     
     - name: Build Executable
       shell: powershell
