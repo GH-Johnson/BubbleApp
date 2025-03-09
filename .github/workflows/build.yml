@@ -28,18 +28,26 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install wheel
-        pip install pyinstaller==5.13.2  # 显式安装指定版本
-        # 验证安装路径
-        Get-ChildItem "$env:USERPROFILE\AppData\Local\Programs\Python\3.8.10\Scripts\pyinstaller.exe"
         pip install -r requirements.txt
         pip list | findstr pyinstaller  # 确认安装成功
+
+        # 获取真实Python安装路径
+        $pythonPath = (Get-Command python).Path
+        Write-Host "Python实际路径: $pythonPath"
+    
+        # 自动计算Scripts目录
+        $scriptsDir = Join-Path (Split-Path $pythonPath -Parent) "Scripts"
+        Write-Host "Scripts目录: $scriptsDir"
+    
+        # 将路径加入当前环境变量
+        $env:PATH = "$scriptsDir;$env:PATH"
 
     - name: 显式安装PyInstaller
       shell: powershell
       run: |
         python -m pip install pyinstaller==5.13.2
-        # 验证安装路径
-        Get-ChildItem "$env:USERPROFILE\AppData\Local\Programs\Python\3.8.10\Scripts\pyinstaller.exe"
+        # 验证安装位置
+        Get-ChildItem "$env:USERPROFILE\AppData\Local\Programs\Python\Python3*"
     
     - name: 构建可执行文件
       shell: powershell
