@@ -43,7 +43,7 @@ jobs:
         python -m pip install --upgrade "pip<21.0"
 
         # 安装依赖（版本严格匹配）
-        pip install pyinstaller==4.10 pywin32==227 pandas==1.1.5 pygame==2.0.3
+        pip install pyinstaller==4.10 pywin32==227 pandas==1.1.5 pygame==2.0.3 importlib-metadata==4.8.1
 
     - name: Build Executable
       shell: powershell
@@ -56,6 +56,7 @@ jobs:
           --hidden-import pandas._libs.tslibs.np_datetime `
           --hidden-import pandas._libs.tslibs.nattype `
           --hidden-import pygame._sdl2 `
+          --hidden-import importlib_metadata `
           --target-arch 32bit `
           bubble_app.py
 
