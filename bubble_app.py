@@ -3,6 +3,7 @@ import pygame
 import pandas as pd
 import tkinter as tk
 from tkinter import filedialog
+from tkinter import messagebox
 import random
 import ctypes
 import time  # 新增导入
@@ -45,10 +46,9 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
 
     path = os.path.join(base_path, relative_path)
-    
+    print(f"资源路径检查: {path}")  # 添加调试输出
     if not os.path.exists(path):
         raise FileNotFoundError(f"资源文件缺失: {path}")
-    
     return path
 
 # 高级泡泡生成器（保持不变）
