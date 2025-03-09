@@ -243,12 +243,8 @@ def load_dataset():
                 
         return df.iloc[:, 0].dropna().astype(str).tolist()
     
-    from tkinter import messagebox
     except Exception as e:
         print(f"数据加载失败: {e}")
-        root = tk.Tk()
-        root.withdraw()
-        messagebox.showerror("加载错误", f"文件读取失败: {str(e)}")
         return []
 
 def main():
