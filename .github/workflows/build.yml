@@ -1,88 +1,62 @@
-name: Build Windows 7 32-bit Executable
+name: Build Win7 32 Executable
 
-on: [push]
+on:
+  push:
+    branches: [ main ]
 
 jobs:
   build:
-    runs-on: windows-2019  # 兼容性更好的旧版环境
-    env:
-      PYTHON_ARCH: "x86"   # 强制32位架构
+    runs-on: windows-latest  # GitHub Actions 仅支持 Windows 最新版，但可运行 32位 Python
 
     steps:
-    - uses: actions/checkout@v4
+    - name: 检出代码
+      uses: actions/checkout@v4
 
-    - name: 安装VC++ 2015运行库
-      shell: powershell
-      run: |
-        Invoke-WebRequest -Uri "https://aka.ms/vs/16/release/vc_redist.x86.exe" -OutFile vc_redist.x86.exe
-        Start-Process vc_redist.x86.exe -ArgumentList '/install', '/quiet', '/norestart' -Wait
-
-    - name: 配置Python 3.8 32位
+    - name: 安装 Python 3.7.9 (32位)
       uses: actions/setup-python@v4
       with:
-        python-version: "3.8.10"
-        architecture: x86  # 关键：必须指定32位
+        python-version: '3.7.9'  # 官方最后支持 Win7 的 32位版本
+        architecture: 'x86'     # 强制使用 32位解释器
 
-    - name: 安装依赖
+    - name: 配置环境变量
       shell: powershell
       run: |
-        python -m pip install --upgrade pip
-        pip install wheel
-        pip install -r requirements.txt
-        pip list | findstr pyinstaller  # 确认安装成功
-
-        # 获取真实Python安装路径
+        # 获取 32位 Python 路径
         $pythonPath = (Get-Command python).Path
-        Write-Host "Python实际路径: $pythonPath"
-    
-        # 自动计算Scripts目录
-        $scriptsDir = Join-Path (Split-Path $pythonPath -Parent) "Scripts"
-        Write-Host "Scripts目录: $scriptsDir"
-    
-        # 将路径加入当前环境变量
-        $env:PATH = "$scriptsDir;$env:PATH"
-
-    - name: 显式安装PyInstaller
-      shell: powershell
-      run: |
-        python -m pip install pyinstaller==5.13.2
-        # 验证安装位置
-        Get-ChildItem "$env:USERPROFILE\AppData\Local\Programs\Python\Python3*"
-    
-    - name: 构建可执行文件
-      shell: powershell
-      run: |
-            # 获取Python安装路径
-            $pythonPath = (Get-Command python).Path
-            $scriptsDir = Join-Path (Split-Path $pythonPath -Parent) "Scripts"
-            
-            # 添加路径到环境变量
-            $env:PATH = "$scriptsDir;$env:PATH"
-            
-            # 验证PyInstaller可执行性
-            if (-not (Test-Path "$scriptsDir\pyinstaller.exe")) {
-                Write-Error "PyInstaller未正确安装!"
-                Exit 1
-            }
+        Write-Host "Python 32位路径: $pythonPath"
         
-            # 执行构建（检查所有符号为英文）
-            pyinstaller --onefile --noconsole `
-              --add-data "resources/pop.wav;resources" `
-              --hidden-import pandas._libs.tslibs.np_datetime `
-              --hidden-import pandas._libs.tslibs.nattype `
-              --hidden-import pygame._sdl2 `
-              --workpath build `
-              --distpath dist `
-              bubble_app.py
-      
-    - name: 验证构建结果
+        # 计算 Scripts 目录并加入 PATH
+        $scriptsDir = Join-Path (Split-Path $pythonPath -Parent) "Scripts"
+        $env:PATH = "$scriptsDir;$env:PATH"
+        Write-Host "更新后的 PATH: $env:PATH"
+
+    - name: 安装依赖 (Win7兼容版本)
       shell: powershell
       run: |
-        Get-ChildItem -Path dist -Recurse
-        Test-Path "dist/bubble_app.exe"
+        # 升级 pip (使用旧版语法)
+        python -m pip install --upgrade "pip<21.0"
+        
+        # 安装特定版本依赖库（确保兼容 Win7 32位）
+        pip install pyinstaller==4.10 pywin32==227 pandas==1.1.5 pygame==2.0.3
 
-    - name: 上传制品
+    - name: 构建 32位可执行文件
+      shell: powershell
+      run: |
+        # 使用绝对路径调用 PyInstaller
+        $pythonPath = (Get-Command python).Path
+        $scriptsDir = Join-Path (Split-Path $pythonPath -Parent) "Scripts"
+        
+        # 添加 --target-arch 32位 参数
+        & "$scriptsDir\pyinstaller.exe" --onefile --noconsole `
+          --add-data "resources/pop.wav;resources" `
+          --hidden-import pandas._libs.tslibs.np_datetime `
+          --hidden-import pandas._libs.tslibs.nattype `
+          --hidden-import pygame._sdl2 `
+          --target-arch 32bit `  # 明确指定 32位架构
+          bubble_app.py
+
+    - name: 上传产物
       uses: actions/upload-artifact@v4
       with:
-        name: BubbleApp-Win7-32bit
+        name: win7-32-executable
         path: dist/bubble_app.exe
