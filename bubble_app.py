@@ -249,54 +249,7 @@ def load_dataset():
         print(f"数据加载失败: {e}")
         return []
 
-def check_vc_redist():
-    """检查VC++ 2015运行库是否安装"""
-    try:
-        import winreg
-        key = winreg.OpenKey(
-            winreg.HKEY_LOCAL_MACHINE,
-            r"SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x86",
-            0,
-            winreg.KEY_READ | winreg.KEY_WOW64_32KEY
-        )
-        installed = winreg.QueryValueEx(key, "Installed")[0]
-        return installed == 1
-    except Exception:
-        return False
 
-def install_vc_redist():
-    """静默安装VC++运行库"""
-    import tempfile
-    import ctypes
-    import subprocess
-    
-    try:
-        # 获取临时文件路径
-        temp_dir = tempfile.gettempdir()
-        target_path = os.path.join(temp_dir, "vc_redist.x86.exe")
-        
-        # 从打包资源中提取安装程序
-        if getattr(sys, 'frozen', False):
-            # 打包后模式
-            import pyi_splash
-            pyi_splash.close()  # 关闭PyInstaller启动画面
-            
-            # 读取嵌入资源
-            vc_redist_bytes = open(sys._MEIPASS + '/vc_redist.x86.exe', 'rb').read()
-            with open(target_path, 'wb') as f:
-                f.write(vc_redist_bytes)
-        else:
-            # 开发模式直接使用本地文件
-            target_path = 'vc_redist.x86.exe'
-
-        # 以管理员权限运行安装程序
-        ctypes.windll.shell32.ShellExecuteW(
-            None, "runas", target_path, "/q /norestart", None, 0
-        )
-        return True
-    except Exception as e:
-        print(f"安装失败: {e}")
-        return False
 
 def main():
     # 测试代码开始
@@ -306,18 +259,18 @@ def main():
     # 测试代码结束
     
     # 先检查运行库
-    if not check_vc_redist():
-        print("正在安装必要组件...")
-        if not install_vc_redist():
-            ctypes.windll.user32.MessageBoxW(
-                0,
-                "需要安装Visual C++ 2015运行库\n请手动运行vc_redist.x86.exe",
-                "系统依赖缺失",
-                0x10
-            )
-            sys.exit(1)
+    #if not check_vc_redist():
+       # print("正在安装必要组件...")
+        #if not install_vc_redist():
+        #    ctypes.windll.user32.MessageBoxW(
+         #       0,
+         #       "需要安装Visual C++ 2015运行库\n请手动运行vc_redist.x86.exe",
+         #       "系统依赖缺失",
+         #       0x10
+         #   )
+          #  sys.exit(1)
         # 等待安装完成
-        time.sleep(30)
+        #time.sleep(30)
         
     if sys.platform == 'win32' and sys.getwindowsversion().major < 6:
         print("需要Windows 7及以上系统")
