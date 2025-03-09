@@ -18,9 +18,9 @@ if sys.platform == "win32":
 
 # 版本检查
 try:
-    assert importlib.metadata.version('pygame') >= '2.0.3'
-    assert importlib.metadata.version('pandas') >= '1.2.5'
-    assert importlib.metadata.version('numpy') >= '1.24.3'
+    assert metadata.version('pygame') >= '2.0.3'
+    assert metadata.version('pandas') >= '1.2.5'
+    assert metadata.version('numpy') >= '1.24.3'
 except (ImportError, AssertionError) as e:
     print(f"依赖版本不满足: {e}")
     sys.exit(1)
@@ -171,7 +171,7 @@ class Bubble:
             try:
                 # 中文字体优先级列表（小写无空格）
                 font = pygame.font.SysFont(
-                    ['microsoftyahei', 'simhei', 'simsun', 'stheititts', 'wqy-microhei'], 
+                    ['microsoft yahei', 'simhei', 'simsun', 'stheititts', 'wqy-microhei'], 
                     font_size
                 )
             except Exception:
@@ -242,8 +242,13 @@ def load_dataset():
                 return [line.strip() for line in f]
                 
         return df.iloc[:, 0].dropna().astype(str).tolist()
+    
+    from tkinter import messagebox
     except Exception as e:
         print(f"数据加载失败: {e}")
+        root = tk.Tk()
+        root.withdraw()
+        messagebox.showerror("加载错误", f"文件读取失败: {str(e)}")
         return []
 
 def main():
