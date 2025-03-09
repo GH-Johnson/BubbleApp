@@ -9,56 +9,58 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: 检出代码
+    - name: Checkout Code
       uses: actions/checkout@v4
 
-    - name: 安装 Python 3.7.9 (32位)
+    - name: Setup Python 3.7.9 (x86)
       uses: actions/setup-python@v4
       with:
         python-version: '3.7.9'
-        architecture: 'x86'  # 强制32位
+        architecture: 'x86'
 
-    - name: 配置环境变量
+    - name: Configure Environment
       shell: powershell
       run: |
-        # 获取Python路径（严格英文符号）
+        # 获取Python路径（强制ASCII编码）
         $pythonPath = (Get-Command python).Path
-        Write-Host "Python路径: $pythonPath"
+        Write-Host "Python Path: $pythonPath"
 
-        # 计算Scripts目录
+        # 计算Scripts目录（禁用特殊字符）
         $scriptsDir = Join-Path (Split-Path $pythonPath -Parent) "Scripts"
-        Write-Host "Scripts目录: $scriptsDir"
+        Write-Host "Scripts Dir: $scriptsDir"
 
-        # 设置环境变量（英文符号）
+        # 设置环境变量（仅英文符号）
         $env:PATH = "$scriptsDir;$env:PATH"
-        Write-Host "更新后的PATH: $env:PATH"
+        Write-Host "Updated PATH: $env:PATH"
 
-    - name: 安装依赖
+        # 调试：验证路径存在
+        Test-Path "$scriptsDir\pyinstaller.exe"
+
+    - name: Install Dependencies
       shell: powershell
       run: |
-        # 降级pip（适配Python 3.7）
+        # 降级pip（无特殊字符命令）
         python -m pip install --upgrade "pip<21.0"
 
-        # 安装兼容库
+        # 安装依赖（版本严格匹配）
         pip install pyinstaller==4.10 pywin32==227 pandas==1.1.5 pygame==2.0.3
 
-    - name: 构建可执行文件
+    - name: Build Executable
       shell: powershell
       run: |
-        # 使用绝对路径调用PyInstaller
         $pythonPath = (Get-Command python).Path
         $scriptsDir = Join-Path (Split-Path $pythonPath -Parent) "Scripts"
-        
+
         & "$scriptsDir\pyinstaller.exe" --onefile --noconsole `
           --add-data "resources/pop.wav;resources" `
           --hidden-import pandas._libs.tslibs.np_datetime `
           --hidden-import pandas._libs.tslibs.nattype `
           --hidden-import pygame._sdl2 `
-          --target-arch 32bit `  # 强制32位
+          --target-arch 32bit `
           bubble_app.py
 
-    - name: 上传产物
+    - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: win7-32-executable
+        name: win7-32-exe
         path: dist/bubble_app.exe
