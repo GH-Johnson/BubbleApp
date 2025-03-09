@@ -75,7 +75,7 @@ jobs:
     - name: Build Executable
       shell: cmd
       run: |
-        pyinstaller --onefile --noconsole ^
+        pyinstaller --onefile --console --noconsole ^
           --add-data "resources/pop.wav;resources" ^
           --add-data "vc_redist.x86.exe;." ^
           --hidden-import pandas._libs.tslibs.np_datetime ^
