@@ -173,7 +173,7 @@ class Bubble:
             try:
                 # 中文字体优先级列表（小写无空格）
                 font = pygame.font.SysFont(
-                    ['microsoft yahei', 'simhei', 'simsun', 'stheititts', 'wqy-microhei'], 
+                    ['microsoftyahei', 'simhei', 'simsun', 'stheititts', 'wqy-microhei'], 
                     font_size
                 )
             except Exception:
@@ -251,27 +251,7 @@ def load_dataset():
 
 
 
-def main():
-    # 测试代码开始
-    test_window = tk.Tk()
-    test_window.withdraw()
-    messagebox.showinfo("启动检测", "程序已启动到此处")
-    # 测试代码结束
-    
-    # 先检查运行库
-    #if not check_vc_redist():
-       # print("正在安装必要组件...")
-        #if not install_vc_redist():
-        #    ctypes.windll.user32.MessageBoxW(
-         #       0,
-         #       "需要安装Visual C++ 2015运行库\n请手动运行vc_redist.x86.exe",
-         #       "系统依赖缺失",
-         #       0x10
-         #   )
-          #  sys.exit(1)
-        # 等待安装完成
-        #time.sleep(30)
-        
+def main():   
     if sys.platform == 'win32' and sys.getwindowsversion().major < 6:
         print("需要Windows 7及以上系统")
         sys.exit(1) 
