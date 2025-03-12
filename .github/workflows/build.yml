@@ -50,13 +50,13 @@ jobs:
         pyinstaller --onefile bubble_app.py
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: win32-app
         path: dist/bubble_app.exe
 
     - name: Upload MSI log
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: msi-install-log
         path: c:\python3_msi_install.log
