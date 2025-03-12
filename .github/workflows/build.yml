@@ -8,29 +8,27 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-2016
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
-
-    - name: Set up Docker Buildx
-      id: buildx
-      uses: docker/setup-buildx-action@v1
-
-    - name: Build and run the container
+    - name: Install Python 3.9 (32-bit)
       run: |
-        docker run --rm \
-          -v $(pwd):/workdir \
-          -w /workdir \
-          python:3.9-slim-i386 \
-          bash -c "pip install pyinstaller pygame pandas numpy && pyinstaller --onefile bubble_app.py"
+        choco install python --version=3.9.0 --x86 -y
+        refreshenv
+
+    - name: Install dependencies
+      run: |
+        pip install pyinstaller pygame pandas numpy
+
+    - name: Build the application
+      run: |
+        pyinstaller --onefile bubble_app.py
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: win32-app
         path: dist/bubble_app.exe
