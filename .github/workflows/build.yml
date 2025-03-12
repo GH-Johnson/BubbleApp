@@ -14,13 +14,24 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Install Chocolatey
+    - name: Upgrade Chocolatey
       run: |
-        Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+        choco upgrade chocolatey -y
 
-    - name: Install Python 3.9 (32-bit)
+    - name: Uninstall any existing Python installations
       run: |
-        choco install python --version=3.9.0 --x86 -y
+        choco uninstall python --all-versions -y || true
+        choco uninstall python3 --all-versions -y || true
+
+    - name: Clean up residual Python directories
+      run: |
+        Remove-Item -Recurse -Force "C:\Python39" || true
+        Remove-Item -Recurse -Force "C:\ProgramData\chocolatey\lib\python3" || true
+        Remove-Item -Recurse -Force "C:\ProgramData\chocolatey\lib-bkp\python3" || true
+
+    - name: Install Python 3.9 (32-bit) with logging
+      run: |
+        choco install python --version=3.9.0 --x86 -y --install-arguments="'/l*v c:\python3_msi_install.log'"
         # Manually add Python to PATH
         $pythonPath = "$env:SystemDrive\Python39"
         $env:PATH = "$pythonPath;$pythonPath\Scripts;$env:PATH"
@@ -39,7 +50,13 @@ jobs:
         pyinstaller --onefile bubble_app.py
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v3
       with:
         name: win32-app
         path: dist/bubble_app.exe
+
+    - name: Upload MSI log
+      uses: actions/upload-artifact@v3
+      with:
+        name: msi-install-log
+        path: c:\python3_msi_install.log
