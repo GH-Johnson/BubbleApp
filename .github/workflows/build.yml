@@ -30,7 +30,7 @@ jobs:
           bash -c "pip install pyinstaller pygame pandas numpy && pyinstaller --onefile bubble_app.py"
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: win32-app
         path: dist/bubble_app.exe
