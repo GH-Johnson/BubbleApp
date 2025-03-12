@@ -14,10 +14,21 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
+    - name: Install Chocolatey
+      run: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
     - name: Install Python 3.9 (32-bit)
       run: |
         choco install python --version=3.9.0 --x86 -y
-        refreshenv
+        # Manually add Python to PATH
+        $pythonPath = "$env:SystemDrive\Python39"
+        $env:PATH = "$pythonPath;$pythonPath\Scripts;$env:PATH"
+
+    - name: Verify Python Installation
+      run: |
+        python --version
+        pip --version
 
     - name: Install dependencies
       run: |
